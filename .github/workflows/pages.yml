@@ -1,5 +1,4 @@
 # .github/workflows/pages.yml - Vite を GitHub Pages に自動デプロイ
-
 name: Deploy Vite to GitHub Pages
 
 on:
@@ -22,22 +21,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+          cache: 'npm'
       - name: Install
-        run: npm ci
-
+        run: npm install
       - name: Build
         run: npm run build
-
-      # ★ 追記: SPA用フォールバック（/foo 直叩き対策）
       - name: SPA 404 fallback
-        run: cp dist/index.html dist/404.html  # ★
-
+        run: cp dist/index.html dist/404.html
+      - name: Configure Pages          # ★ Pagesを構成（必須）
+        uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -50,6 +46,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages   # ★ デプロイ本体
         id: deployment
         uses: actions/deploy-pages@v4
