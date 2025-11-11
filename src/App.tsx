@@ -1,3 +1,5 @@
+// App.tsx - 社内ポータルのトップ画面。PDF(報連相)を開くタイルを追加
+
 import { FormEvent, useEffect, useState } from 'react';
 import {
   Truck,
@@ -12,8 +14,13 @@ import {
   Newspaper,
   Globe,
   Youtube,
+  // ★ 追記: PDF用のアイコン
+  FileText, // ★
 } from 'lucide-react';
 import AppIcon from './components/AppIcon';
+
+// ★ 追記: GitHub Pagesのサブパス（/new-river-one/）に自動追従するためのbase
+const base = import.meta.env.BASE_URL; // ★
 
 const apps = [
     { name: 'トラックモニター', icon: Truck, url: 'https://truck-monitor-26773.web.app/', color: 'bg-blue-200' },
@@ -22,14 +29,17 @@ const apps = [
     { name: '不適切報告書', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: 'bg-rose-200' },
     { name: '不適合報告書', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: 'bg-orange-200' },
     { name: '事故発生報告書', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: 'bg-purple-200' },
+    // ★ 追記: 報連相.pdf を開くタイル（public/files/報連相.pdf）
+    { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: 'bg-teal-200' }, // ★
     { name: '目安箱(社長宛)', icon: Mail, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: 'bg-indigo-200' },
     { name: '目安箱(DX宛)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: 'bg-cyan-200' },
     { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: 'bg-yellow-200' },
     { name: '新聞アンケート', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: 'bg-lime-200' },
     { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: 'bg-teal-200' },
     { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: 'bg-red-200' },
-  ];
+];
 
+// --- ここから下はそのまま ---
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
