@@ -8,7 +8,7 @@ import {
   FileWarning,
   FileX,
   AlertTriangle,
-  Mail,
+  Lightbulb,
   MessageSquare,
   Trophy,
   Newspaper,
@@ -18,6 +18,9 @@ import {
   FileText, // ★
 } from 'lucide-react';
 import AppIcon from './components/AppIcon';
+
+// ★ 追記：掲示板を読み込み
+import BulletinBoard from './components/BulletinBoard'; // ★
 
 // ★ 追記: GitHub Pagesのサブパス（/new-river-one/）に自動追従するためのbase
 const base = import.meta.env.BASE_URL; // ★
@@ -31,7 +34,7 @@ const apps = [
     { name: '事故発生報告書', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: 'bg-purple-200' },
     // ★ 追記: 報連相.pdf を開くタイル（public/files/報連相.pdf）
     { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: 'bg-teal-200' }, // ★
-    { name: '目安箱(社長宛)', icon: Mail, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: 'bg-indigo-200' },
+    { name: '目安箱(社長宛)', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: 'bg-indigo-200' },
     { name: '目安箱(DX宛)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: 'bg-cyan-200' },
     { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: 'bg-yellow-200' },
     { name: '新聞アンケート', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: 'bg-lime-200' },
@@ -69,6 +72,9 @@ function App() {
             <h1 className="text-4xl md:text-5xl font-bold text-slate-200 mb-2 italic">New River One</h1>
             <p className="text-slate-200">統合アプリケーションポータル</p>
           </header>
+
+          {/* ★ 追加：掲示板（縦幅コンパクトなカード） */}
+          <BulletinBoard /> {/* ★ */}
 
           <div className="grid grid-cols-3 md:grid-cols-6 gap-6 md:gap-8">
             {apps.map((app, index) => (

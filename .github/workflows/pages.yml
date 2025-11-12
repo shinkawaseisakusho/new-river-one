@@ -3,7 +3,7 @@ name: Deploy Vite to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -24,20 +24,20 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
       - name: Install
         run: npm install
       - name: Build
         run: npm run build
       - name: SPA 404 fallback
         run: cp dist/index.html dist/404.html
-      - name: Configure Pages          # ★ Pagesを構成（必須）
+      - name: Configure Pages # ★ Pagesを構成（必須）
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: "./dist"
 
   deploy:
     needs: build
@@ -46,6 +46,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages   # ★ デプロイ本体
+      - name: Deploy to GitHub Pages # ★ デプロイ本体
         id: deployment
         uses: actions/deploy-pages@v4
