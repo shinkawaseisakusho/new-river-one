@@ -91,7 +91,7 @@ export default function BulletinBoard() {
 
   return (
     <section
-      className="rounded-2xl bg-white/80 backdrop-blur shadow-lg px-3 py-2 md:px-4 md:py-3 mb-6 border border-slate-100"
+      className="rounded-2xl bg-white/80 backdrop-blur shadow-lg px-2 py-2 md:px-4 md:py-3 mb-6 border border-slate-100"
       aria-label="社内掲示板"
     >
       <form onSubmit={submit} className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export default function BulletinBoard() {
           value={text}
           onChange={(e) => setText(e.target.value.slice(0, maxLen))}
           maxLength={maxLen}
-          placeholder="掲示板に書き込む"
+          placeholder="掲示板に書き込む（最新5件表示）"
           className="flex-1 rounded-lg border border-slate-200 bg-white/70 px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring focus:ring-sky-200 focus:border-sky-500"
         />
         <button

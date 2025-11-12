@@ -35,7 +35,7 @@ const apps = [
     { name: '不適切報告書', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: 'bg-rose-200' },
     { name: '不適合報告書', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: 'bg-orange-200' },
     { name: '事故発生報告書', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: 'bg-violet-200' },
-    { name: 'フォトログ', icon: Image, url: 'https://shinkawa-calling-app.web.app/', color: 'bg-purple-200' },
+    { name: 'フォトログ', icon: Image, url: 'https://manufacturing-log-shinkawa.web.app/', color: 'bg-purple-200' },
     { name: '目安箱(社長宛)', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: 'bg-amber-200' },
     { name: '目安箱(DX宛)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: 'bg-cyan-200' },
     { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: 'bg-yellow-200' },
@@ -72,7 +72,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-800 to-sky-100">
       {authenticated ? (
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="container mx-auto px-3 py-6 max-w-7xl">
           <header className="text-center mb-4">
             <h1 className="text-4xl md:text-5xl font-bold text-slate-200 mb-2 italic">New River One</h1>
             <p className="text-slate-200">総合アプリケーションポータル</p>
