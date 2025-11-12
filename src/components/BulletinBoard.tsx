@@ -11,6 +11,12 @@ type Bullet = {
   created_at: string; // ISO文字列（UTC）
 };
 
+// ★ 追記: 全角数字(０-９)を半角数字(0-9)に変換するユーティリティ（送信時だけ使用）
+function toHalfWidthDigits(src: string): string { // ★
+  // Unicode全角数字は '０'(U+FF10)〜'９'(U+FF19) なので 0xFEE0 を引くと半角になります // ★
+  return src.replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)); // ★
+}
+
 export default function BulletinBoard() {
   const [text, setText] = useState('');
   const [items, setItems] = useState<Bullet[]>([]);
@@ -67,14 +73,20 @@ export default function BulletinBoard() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const value = text.trim();
-    if (value.length === 0) return;
-    if (value.length > maxLen) return; // 二重チェック（DB側にもCHECKあり）
+    const raw = text.trim();
+    if (raw.length === 0) return;
+
+    // ★ 修正: 送信時のみ全角数字→半角数字に正規化（入力欄の表示は変更しない）
+    const normalized = toHalfWidthDigits(raw); // ★
+
+    // ★ 修正: 文字数チェックも正規化後の内容で行う（DBのCHECKと整合）
+    if (normalized.length > maxLen) return; // ★
+
     setPosting(true);
-    // ★ created_at は指定不要（DBが自動で now() を入れる）
-    const { error } = await supabase.from('bulletin').insert({ content: value });
+    // ★ 修正: DBへは正規化後の文字列を保存
+    const { error } = await supabase.from('bulletin').insert({ content: normalized }); // ★
     setPosting(false);
-    if (!error) setText('');
+    if (!error) setText(''); // 成功時のみ入力をクリア
   };
 
   return (
