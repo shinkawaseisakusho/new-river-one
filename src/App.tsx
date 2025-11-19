@@ -13,7 +13,7 @@ import {
   Trophy,
   Newspaper,
   Image,
-  Megaphone,
+  Bell,
   QrCode,
   Globe,
   Youtube,
@@ -32,16 +32,16 @@ const apps = [
     { name: 'トラックモニター', icon: Truck, url: 'https://truck-monitor-26773.web.app/', color: 'bg-green-200' },
     { name: '生産モニター', icon: Factory, url: 'https://real-time-count-shinkawa.web.app/', color: 'bg-blue-200' },
     { name: '溶接講習', icon: Flame, url: 'https://yousetu.pages.dev/', color: 'bg-red-200' },
-    { name: '不適切報告書', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: 'bg-rose-200' },
-    { name: '不適合報告書', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: 'bg-orange-200' },
-    { name: '事故発生報告書', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: 'bg-violet-200' },
     { name: 'フォトログ', icon: Image, url: 'https://manufacturing-log-shinkawa.web.app/', color: 'bg-purple-200' },
-    { name: '目安箱(社長宛)', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: 'bg-amber-200' },
-    { name: '目安箱(DX宛)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: 'bg-cyan-200' },
+    { name: '不適切', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: 'bg-rose-200' },
+    { name: '不適合', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: 'bg-orange-200' },
+    { name: '事故発生', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: 'bg-violet-200' },
+    { name: 'コールアプリ', icon: Bell, url: 'https://shinkawa-calling-app.web.app/', color: 'bg-lime-200' },
+    { name: '目安箱(社長)', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: 'bg-amber-200' },
+    { name: '目安箱(DX)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: 'bg-cyan-200' },
     { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: 'bg-yellow-200' },
     { name: '新聞アンケート', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: 'bg-fuchsia-200' },
     { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: 'bg-emerald-200' },
-    { name: 'コールアプリ', icon: Megaphone, url: 'https://shinkawa-calling-app.web.app/', color: 'bg-lime-200' },
     { name: '製品QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: 'bg-indigo-200' },
     { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: 'bg-sky-200' },
     { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: 'bg-red-200' },
@@ -81,7 +81,7 @@ function App() {
           {/* ★ 追加：掲示板（縦幅コンパクトなカード） */}
           <BulletinBoard /> {/* ★ */}
 
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-6 md:gap-10">
+          <div className="grid grid-cols-4 md:grid-cols-8 gap-4 md:gap-6">
             {apps.map((app, index) => (
               <AppIcon
                 key={index}
