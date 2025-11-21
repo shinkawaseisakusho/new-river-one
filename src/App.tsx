@@ -40,12 +40,12 @@ const apps = [
     { name: '不適合', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: glassStyle },
     { name: '事故発生', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: glassStyle },
     { name: 'コールアプリ', icon: Bell, url: 'https://shinkawa-calling-app.web.app/', color: glassStyle },
-    { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
+    { name: '目安箱(社長)', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
     { name: '目安箱(DX)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: glassStyle },
     { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: glassStyle },
     { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
-    { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
-    { name: '製品QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: glassStyle },
+    { name: '報連相', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
+    { name: 'QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: glassStyle },
     { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: glassStyle },
     { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: glassStyle },
 ];
@@ -84,7 +84,7 @@ function App() {
       </div>
       <div className="relative z-10">
         {authenticated ? (
-              <div className="container mx-auto px-3 py-3 max-w-7xl">
+              <div className="container mx-auto px-3 py-5 max-w-7xl">
                 <header className="text-center mb-4">
                   <h1 className="text-3xl md:text-5xl font-bold text-slate-300 mb-1 italic">New River One</h1>
                   <p className="text-slate-300 text-xs md:text-sm">総合アプリケーションポータル</p>

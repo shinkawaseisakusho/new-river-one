@@ -150,13 +150,13 @@ export default function BulletinBoard() {
                     className="group flex items-center gap-1 rounded-xl bg-white/5 px-2 py-1.5 transition-all hover:bg-white/10 hover:shadow-md"
                   >
                     {/* 時刻：バッジスタイルで見やすく */}
-                    <span className="flex-shrink-0 rounded bg-sky-500/10 px-2 py-0.5 text-[10px] font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums">
+                    <span className="flex-shrink-0 rounded bg-sky-500/10 px-2 py-0.5 text-[10px] md:text-sm font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums">
                       {when}
                     </span>
 
                     {/* テキスト：省略表示しつつ、ホバーで少し明るく */}
                     <span 
-                      className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-slate-300 group-hover:text-slate-100"
+                      className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm md:text-base text-slate-300 group-hover:text-slate-100"
                       title={`${when} ${it.content}`}
                     >
                       {it.content}
