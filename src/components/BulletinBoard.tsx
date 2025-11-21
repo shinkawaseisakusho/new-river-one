@@ -91,52 +91,88 @@ export default function BulletinBoard() {
 
   return (
     <section
-      className="rounded-2xl bg-white/80 backdrop-blur shadow-lg px-2 py-2 md:px-4 md:py-3 mb-6 border border-slate-100"
+      className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:bg-white/10 max-w-3xl mx-auto mb-6"
       aria-label="社内掲示板"
     >
-      <form onSubmit={submit} className="flex items-center gap-2">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value.slice(0, maxLen))}
-          maxLength={maxLen}
-          placeholder="掲示板に書き込む（最新5件表示）"
-          className="flex-1 rounded-lg border border-slate-200 bg-white/70 px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring focus:ring-sky-200 focus:border-sky-500"
-        />
-        <button
-          type="submit"
-          disabled={posting || text.trim().length === 0}
-          className="inline-flex items-center gap-1 rounded-lg bg-sky-600 px-3 py-2 text-white text-sm font-medium hover:bg-sky-700 disabled:opacity-50 transition"
-          title="投稿する"
-        >
-          <Send className="w-4 h-4" aria-hidden />
-        </button>
-      </form>
+      {/* 装飾：上部のアクセントライン */}
+      <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 opacity-70" />
 
-      <ul className="mt-2 space-y-1">
-        {loading ? (
-          <li className="text-xs text-slate-400 px-1 py-1">読み込み中…</li>
-        ) : items.length === 0 ? (
-          <li className="text-xs text-slate-400 px-1 py-1">最初の投稿を書き込んでください。</li>
-        ) : (
-          items.map((it) => {
-            // ★ JST で "MM/DD HH:mm" を作成
-            const when = dtf.format(new Date(it.created_at)); // ★
-            return (
-              <li
-                key={it.id}
-                className="text-sm text-slate-800 px-2 py-1 rounded-md bg-slate-50 hover:bg-slate-100 transition
-                           whitespace-nowrap overflow-hidden text-ellipsis" // 1行表示
-                title={`${when} ${it.content}`} // ★ ツールチップにフル文字列
-              >
-                {/* ★ 先頭に時刻を小さく表示 → 1行＆省略は維持 */}
-                <span className="mr-2 text-xs text-sky-400 tabular-nums align-middle">{when}</span> {/* ★ */}
-                <span className="align-middle text-xs sm:text-base">{it.content}</span>
-              </li>
-            );
-          })
-        )}
-      </ul>
+      <div className="px-2 py-4 md:p-5">
+        {/* 入力エリア：カプセル型でモダンに */}
+        <form onSubmit={submit} className="relative flex items-center gap-2 group">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={text}
+              onChange={(e) => setText(e.target.value.slice(0, maxLen))}
+              maxLength={maxLen}
+              placeholder="掲示板に書き込む（最新5件表示）"
+              className="w-full rounded-full border border-white/10 bg-black/20 px-5 py-3 text-sm text-slate-100 placeholder-slate-400 shadow-inner transition-all focus:border-sky-400/50 focus:bg-black/30 focus:outline-none focus:ring-2 focus:ring-sky-400/20"
+            />
+            {/* 文字数カウンター（入力時のみ表示などの制御も可） */}
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+              {text.length}/{maxLen}
+            </span>
+          </div>
+          
+          <button
+            type="submit"
+            disabled={posting || text.trim().length === 0}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 via-indigo-400 to-purple-400 text-white shadow-lg transition-all hover:scale-105 hover:shadow-sky-500/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale"
+            title="投稿する"
+          >
+            {posting ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            ) : (
+              <Send className="h-4 w-4 ml-0.5" aria-hidden />
+            )}
+          </button>
+        </form>
+
+        {/* リスト表示エリア */}
+        <div className="mt-3">
+          {loading ? (
+            <div className="flex justify-center py-4">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-sky-500/30 border-t-sky-400" />
+            </div>
+          ) : items.length === 0 ? (
+            <div className="py-4 text-center text-sm text-slate-500">
+              投稿がありません。
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {items.map((it) => {
+                const when = dtf.format(new Date(it.created_at));
+                
+                return (
+                  <li
+                    key={it.id}
+                    className="group flex items-center gap-1 rounded-xl bg-white/5 px-2 py-1.5 transition-all hover:bg-white/10 hover:shadow-md"
+                  >
+                    {/* 時刻：バッジスタイルで見やすく */}
+                    <span className="flex-shrink-0 rounded bg-sky-500/10 px-2 py-0.5 text-[10px] font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums">
+                      {when}
+                    </span>
+
+                    {/* テキスト：省略表示しつつ、ホバーで少し明るく */}
+                    <span 
+                      className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-slate-300 group-hover:text-slate-100"
+                      title={`${when} ${it.content}`}
+                    >
+                      {it.content}
+                    </span>
+
+                    {/* ホバー時に出現する矢印などの装飾（オプション） */}
+                    <div className="opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_5px_rgba(56,189,248,0.8)]" />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </div>
     </section>
   );
 }
