@@ -22,6 +22,7 @@ export default function BulletinBoard() {
   const [items, setItems] = useState<Bullet[]>([]);
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null); // ★ 追記: 展開中のID
   const maxLen = 30;
 
   // ★ 追記: 日本時間(JST)で "MM/DD HH:mm" に整形するフォーマッタ
@@ -86,6 +87,10 @@ export default function BulletinBoard() {
     if (!error) setText(''); // 成功時のみ入力をクリア
   };
 
+  const toggleExpand = (id: string) => {
+    setExpandedId(prev => prev === id ? null : id);
+  };
+
   return (
     <section
       className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:bg-white/10 max-w-3xl mx-auto mb-6"
@@ -104,14 +109,14 @@ export default function BulletinBoard() {
               onChange={(e) => setText(e.target.value.slice(0, maxLen))}
               maxLength={maxLen}
               placeholder="掲示板に書き込む（最新5件表示）"
-              className="w-full rounded-full border border-white/10 bg-black/20 px-5 py-3 text-sm text-slate-100 placeholder-slate-400 shadow-inner transition-all focus:border-sky-400/50 focus:bg-black/30 focus:outline-none focus:ring-2 focus:ring-sky-400/20"
+              className="w-full rounded-full border border-white/10 bg-black/20 px-3 py-2 text-xs md:text-sm text-slate-100 placeholder-slate-400 shadow-inner transition-all focus:border-sky-400/50 focus:bg-black/30 focus:outline-none focus:ring-2 focus:ring-sky-400/20"
             />
             {/* 文字数カウンター（入力時のみ表示などの制御も可） */}
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
               {text.length}/{maxLen}
             </span>
           </div>
-          
+
           <button
             type="submit"
             disabled={posting || text.trim().length === 0}
@@ -140,28 +145,33 @@ export default function BulletinBoard() {
             <ul className="space-y-2">
               {items.map((it) => {
                 const when = dtf.format(new Date(it.created_at));
-                
+                const isExpanded = expandedId === it.id;
+
                 return (
                   <li
                     key={it.id}
-                    className="group flex items-center gap-1 rounded-xl bg-white/5 px-2 py-1.5 transition-all hover:bg-white/10 hover:shadow-md"
+                    onClick={() => toggleExpand(it.id)}
+                    className={`group flex items-start gap-1 rounded-xl bg-white/5 px-2 py-1.5 transition-all hover:bg-white/10 hover:shadow-md cursor-pointer ${isExpanded ? 'bg-white/10' : ''}`}
                   >
                     {/* 時刻：バッジスタイルで見やすく */}
-                    <span className="flex-shrink-0 rounded bg-sky-500/10 px-1 py-0.5 text-[10px] md:text-sm font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums">
+                    <span className="flex-shrink-0 rounded bg-sky-500/10 px-1 py-0.5 text-[10px] md:text-sm font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums mt-0.5">
                       {when}
                     </span>
 
                     {/* テキスト：省略表示しつつ、ホバーで少し明るく */}
-                    <span 
-                      className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm md:text-base text-slate-300 group-hover:text-slate-100"
-                      title={`${when} ${it.content}`}
+                    <span
+                      className={`flex-1 text-sm md:text-base text-slate-300 group-hover:text-slate-100 self-center ${isExpanded
+                          ? 'whitespace-normal break-words'
+                          : 'overflow-hidden text-ellipsis whitespace-nowrap'
+                        }`}
+                      title={!isExpanded ? `${when} ${it.content}` : ''}
                     >
                       {it.content}
                     </span>
 
                     {/* ホバー時に出現する矢印などの装飾（オプション） */}
-                    <div className="opacity-0 transition-opacity group-hover:opacity-100">
-                      <div className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_5px_rgba(56,189,248,0.8)]" />
+                    <div className={`opacity-0 transition-opacity group-hover:opacity-100 ${isExpanded ? 'opacity-100' : ''}`}>
+                      <div className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_5px_rgba(56,189,248,0.8)] mt-2" />
                     </div>
                   </li>
                 );
