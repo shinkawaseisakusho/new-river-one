@@ -150,7 +150,7 @@ export default function BulletinBoard() {
                     className="group flex items-center gap-1 rounded-xl bg-white/5 px-2 py-1.5 transition-all hover:bg-white/10 hover:shadow-md"
                   >
                     {/* 時刻：バッジスタイルで見やすく */}
-                    <span className="flex-shrink-0 rounded bg-sky-500/10 px-2 py-0.5 text-[10px] md:text-sm font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums">
+                    <span className="flex-shrink-0 rounded bg-sky-500/10 px-1 py-0.5 text-[10px] md:text-sm font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums">
                       {when}
                     </span>
 

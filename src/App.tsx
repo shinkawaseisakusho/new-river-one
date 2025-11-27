@@ -93,7 +93,7 @@ function App() {
                 {/* ★ 追加：掲示板（縦幅コンパクトなカード） */}
                 <BulletinBoard /> {/* ★ */}
 
-                <div className="grid grid-cols-4 md:grid-cols-8 gap-4 md:gap-6">
+                <div className="grid grid-cols-4 md:grid-cols-8 gap-4 md:gap-6 mb-5">
                   {apps.map((app, index) => (
                     <AppIcon
                       key={index}
