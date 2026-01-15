@@ -21,7 +21,7 @@ import {
   Plus,
   Lock,
   // ★ 追記: PDF用のアイコン
-  FileText, // ★
+  //FileText, // ★
 } from 'lucide-react';
 import AppIcon from './components/AppIcon';
 
@@ -29,14 +29,14 @@ import AppIcon from './components/AppIcon';
 import BulletinBoard from './components/BulletinBoard'; // ★
 
 // ★ 追記: GitHub Pagesのサブパス（/new-river-one/）に自動追従するためのbase
-const base = import.meta.env.BASE_URL; // ★
+//const base = import.meta.env.BASE_URL; // ★
 
 const glassStyle = 'bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-gray-700';
 
 const apps = [
   { name: '生産モニター', icon: Factory, url: 'https://real-time-count-shinkawa.web.app/', color: glassStyle },
   { name: 'トラモニ', icon: Truck, url: 'https://truck-monitor-26773.web.app/', color: glassStyle },
-  { name: '溶接講習', icon: Zap, url: 'https://yousetu.pages.dev/', color: glassStyle },
+  { name: '新・溶接講習', icon: Zap, url: 'https://yosetsu-koshu.web.app/', color: glassStyle },
   { name: 'フォトログ', icon: Image, url: 'https://manufacturing-log-shinkawa.web.app/', color: glassStyle },
   { name: '不適切', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: glassStyle },
   { name: '不適合', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: glassStyle },
@@ -49,7 +49,7 @@ const apps = [
   { name: 'カウンター', icon: Plus, url: 'https://counter-shinkawa.web.app/', color: glassStyle },
   { name: 'コールアプリ', icon: Bell, url: 'https://shinkawa-calling-app.web.app/', color: glassStyle },
   { name: 'QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: glassStyle },
-  { name: '報連相', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
+  { name: '旧・溶接講習', icon: Zap, url: 'https://yousetu.pages.dev/', color: glassStyle },
   { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: glassStyle },
   { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: glassStyle },
 ];
