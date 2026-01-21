@@ -20,6 +20,7 @@ import {
   Youtube,
   Plus,
   Lock,
+  Wrench,
   // ★ 追記: PDF用のアイコン
   //FileText, // ★
 } from 'lucide-react';
@@ -38,14 +39,15 @@ const apps = [
   { name: 'トラモニ', icon: Truck, url: 'https://truck-monitor-26773.web.app/', color: glassStyle },
   { name: '新・溶接講習', icon: Zap, url: 'https://yosetsu-koshu.web.app/', color: glassStyle },
   { name: 'フォトログ', icon: Image, url: 'https://manufacturing-log-shinkawa.web.app/', color: glassStyle },
+  { name: '修理・メンテ', icon: Wrench, url: 'https://shinkawa-repair-maintenance.web.app/', color: glassStyle },
   { name: '不適切', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: glassStyle },
   { name: '不適合', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: glassStyle },
   { name: '事故発生', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: glassStyle },
-  { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
   { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
   { name: '目安箱(DX)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: glassStyle },
   { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: glassStyle },
   { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
+  { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
   { name: 'カウンター', icon: Plus, url: 'https://counter-shinkawa.web.app/', color: glassStyle },
   { name: 'コールアプリ', icon: Bell, url: 'https://shinkawa-calling-app.web.app/', color: glassStyle },
   { name: 'QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: glassStyle },
