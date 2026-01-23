@@ -1,4 +1,4 @@
-// src/components/BulletinBoard.tsx - 社内掲示板。誰でも投稿可・最新5件表示・1件20文字/1行・縦幅コンパクト
+// src/components/BulletinBoard.tsx - 社内掲示板。誰でも投稿可・最新5件表示・1件200文字/1行・縦幅コンパクト
 // ★ 修正: 投稿日時を自動保存（DB既定）＋ UIでJST整形して表示
 
 import React, { useEffect, useMemo, useState } from 'react';
@@ -17,13 +17,47 @@ function toHalfWidthDigits(src: string): string { // ★
   return src.replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)); // ★
 }
 
+function renderContentWithLinks(content: string): React.ReactNode { // ★ URLをリンク化
+  const regex = /https?:\/\/[^\s]+|www\.[^\s]+/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index));
+    }
+    const urlText = match[0];
+    const href = urlText.startsWith('http') ? urlText : `https://${urlText}`;
+    parts.push(
+      <a
+        key={`link-${match.index}-${urlText}`}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        className="text-sky-300 underline decoration-sky-400/60 underline-offset-2 hover:text-sky-200"
+      >
+        {urlText}
+      </a>
+    );
+    lastIndex = match.index + urlText.length;
+  }
+
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : content;
+}
+
 export default function BulletinBoard() {
   const [text, setText] = useState('');
   const [items, setItems] = useState<Bullet[]>([]);
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null); // ★ 追記: 展開中のID
-  const maxLen = 30;
+  const maxLen = 200;
 
   // ★ 追記: 日本時間(JST)で "MM/DD HH:mm" に整形するフォーマッタ
   const dtf = useMemo(
@@ -166,7 +200,7 @@ export default function BulletinBoard() {
                         }`}
                       title={!isExpanded ? `${when} ${it.content}` : ''}
                     >
-                      {it.content}
+                      {renderContentWithLinks(it.content)}
                     </span>
 
                     {/* ホバー時に出現する矢印などの装飾（オプション） */}
