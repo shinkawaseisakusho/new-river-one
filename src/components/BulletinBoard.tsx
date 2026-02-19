@@ -58,6 +58,7 @@ export default function BulletinBoard() {
   const [posting, setPosting] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null); // ★ 追記: 展開中のID
   const maxLen = 200;
+  const visibleCount = 5;
 
   // ★ 追記: 日本時間(JST)で "MM/DD HH:mm" に整形するフォーマッタ
   const dtf = useMemo(
@@ -77,7 +78,7 @@ export default function BulletinBoard() {
         .from('bulletin')
         .select('id, content, created_at') // ★ created_at を取得
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(visibleCount);
       if (mounted) {
         if (!error && data) setItems(data);
         setLoading(false);
@@ -92,7 +93,7 @@ export default function BulletinBoard() {
         { event: 'INSERT', schema: 'public', table: 'bulletin' },
         (payload) => {
           const row = payload.new as Bullet; // ★ row.created_at はUTCのISO
-          setItems((prev) => [row, ...prev].slice(0, 5));
+          setItems((prev) => [row, ...prev].slice(0, visibleCount));
         }
       )
       .subscribe();
@@ -124,6 +125,9 @@ export default function BulletinBoard() {
   const toggleExpand = (id: string) => {
     setExpandedId(prev => prev === id ? null : id);
   };
+
+  const visibleItems = items.slice(0, visibleCount);
+  const placeholderCount = Math.max(0, visibleCount - visibleItems.length);
 
   return (
     <section
@@ -166,51 +170,68 @@ export default function BulletinBoard() {
         </form>
 
         {/* リスト表示エリア */}
-        <div className="mt-3">
-          {loading ? (
-            <div className="flex justify-center py-4">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-sky-500/30 border-t-sky-400" />
-            </div>
-          ) : items.length === 0 ? (
-            <div className="py-4 text-center text-sm text-slate-500">
+        <div className="relative mt-3">
+          <ul className="space-y-2">
+            {loading ? (
+              Array.from({ length: visibleCount }).map((_, index) => (
+                <li
+                  key={`loading-${index}`}
+                  className="flex min-h-10 items-center gap-2 rounded-xl bg-white/5 px-2 py-1.5"
+                  aria-hidden
+                >
+                  <span className="h-5 w-14 animate-pulse rounded bg-sky-500/20" />
+                  <span className="h-4 flex-1 animate-pulse rounded bg-white/10" />
+                </li>
+              ))
+            ) : (
+              <>
+                {visibleItems.map((it) => {
+                  const when = dtf.format(new Date(it.created_at));
+                  const isExpanded = expandedId === it.id;
+
+                  return (
+                    <li
+                      key={it.id}
+                      onClick={() => toggleExpand(it.id)}
+                      className={`group flex min-h-10 items-start gap-1 rounded-xl bg-white/5 px-2 py-1.5 transition-all hover:bg-white/10 hover:shadow-md cursor-pointer ${isExpanded ? 'bg-white/10' : ''}`}
+                    >
+                      {/* 時刻：バッジスタイルで見やすく */}
+                      <span className="flex-shrink-0 rounded bg-sky-500/10 px-1 py-0.5 text-[10px] md:text-sm font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums mt-0.5">
+                        {when}
+                      </span>
+
+                      {/* テキスト：省略表示しつつ、ホバーで少し明るく */}
+                      <span
+                        className={`flex-1 text-sm md:text-base text-slate-300 group-hover:text-slate-100 self-center ${isExpanded
+                            ? 'whitespace-normal break-words'
+                            : 'overflow-hidden [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] break-words'
+                          }`}
+                        title={!isExpanded ? `${when} ${it.content}` : ''}
+                      >
+                        {renderContentWithLinks(it.content)}
+                      </span>
+
+                      {/* ホバー時に出現する矢印などの装飾（オプション） */}
+                      <div className={`opacity-0 transition-opacity group-hover:opacity-100 ${isExpanded ? 'opacity-100' : ''}`}>
+                        <div className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_5px_rgba(56,189,248,0.8)] mt-2" />
+                      </div>
+                    </li>
+                  );
+                })}
+                {Array.from({ length: placeholderCount }).map((_, index) => (
+                  <li
+                    key={`placeholder-${index}`}
+                    className="min-h-10 rounded-xl border border-white/5 bg-white/5 px-2 py-1.5"
+                    aria-hidden
+                  />
+                ))}
+              </>
+            )}
+          </ul>
+          {!loading && visibleItems.length === 0 && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-slate-500">
               投稿がありません。
             </div>
-          ) : (
-            <ul className="space-y-2">
-              {items.map((it) => {
-                const when = dtf.format(new Date(it.created_at));
-                const isExpanded = expandedId === it.id;
-
-                return (
-                  <li
-                    key={it.id}
-                    onClick={() => toggleExpand(it.id)}
-                    className={`group flex items-start gap-1 rounded-xl bg-white/5 px-2 py-1.5 transition-all hover:bg-white/10 hover:shadow-md cursor-pointer ${isExpanded ? 'bg-white/10' : ''}`}
-                  >
-                    {/* 時刻：バッジスタイルで見やすく */}
-                    <span className="flex-shrink-0 rounded bg-sky-500/10 px-1 py-0.5 text-[10px] md:text-sm font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums mt-0.5">
-                      {when}
-                    </span>
-
-                    {/* テキスト：省略表示しつつ、ホバーで少し明るく */}
-                    <span
-                      className={`flex-1 text-sm md:text-base text-slate-300 group-hover:text-slate-100 self-center ${isExpanded
-                          ? 'whitespace-normal break-words'
-                          : 'overflow-hidden text-ellipsis whitespace-nowrap'
-                        }`}
-                      title={!isExpanded ? `${when} ${it.content}` : ''}
-                    >
-                      {renderContentWithLinks(it.content)}
-                    </span>
-
-                    {/* ホバー時に出現する矢印などの装飾（オプション） */}
-                    <div className={`opacity-0 transition-opacity group-hover:opacity-100 ${isExpanded ? 'opacity-100' : ''}`}>
-                      <div className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_5px_rgba(56,189,248,0.8)] mt-2" />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
           )}
         </div>
       </div>

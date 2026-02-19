@@ -1,6 +1,6 @@
 // App.tsx - 社内ポータルのトップ画面
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import {
   Truck,
   Factory,
@@ -21,46 +21,124 @@ import {
   Plus,
   Lock,
   Wrench,
+  X,
   // ★ 追記: PDF用のアイコン
-  //FileText, // ★
+  FileText, // ★
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import AppIcon from './components/AppIcon';
 
 // ★ 追記：掲示板を読み込み
 import BulletinBoard from './components/BulletinBoard'; // ★
 
 // ★ 追記: GitHub Pagesのサブパス（/new-river-one/）に自動追従するためのbase
-//const base = import.meta.env.BASE_URL; // ★
+const base = import.meta.env.BASE_URL; // ★
 
 const glassStyle = 'bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-gray-700';
 
-const apps = [
+type PortalApp = {
+  name: string;
+  icon: LucideIcon;
+  url: string;
+  color: string;
+};
+
+const apps: PortalApp[] = [
   { name: '生産モニター', icon: Factory, url: 'https://real-time-count-shinkawa.web.app/', color: glassStyle },
   { name: 'トラモニ', icon: Truck, url: 'https://truck-monitor-26773.web.app/', color: glassStyle },
   { name: '新・溶接講習', icon: Zap, url: 'https://yosetsu-koshu.web.app/', color: glassStyle },
-  { name: 'フォトログ', icon: Image, url: 'https://manufacturing-log-shinkawa.web.app/', color: glassStyle },
-  { name: '修理・メンテ', icon: Wrench, url: 'https://shinkawa-repair-maintenance.web.app/', color: glassStyle },
   { name: '不適切', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: glassStyle },
   { name: '不適合', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: glassStyle },
   { name: '事故発生', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: glassStyle },
-  { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
-  { name: '目安箱(DX)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: glassStyle },
-  { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: glassStyle },
-  { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
-  { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
+  { name: 'フォトログ', icon: Image, url: 'https://manufacturing-log-shinkawa.web.app/', color: glassStyle },
+  { name: '修理・メンテ', icon: Wrench, url: 'https://shinkawa-repair-maintenance.web.app/', color: glassStyle },
   { name: 'カウンター', icon: Plus, url: 'https://counter-shinkawa.web.app/', color: glassStyle },
   { name: 'コールアプリ', icon: Bell, url: 'https://shinkawa-calling-app.web.app/', color: glassStyle },
   { name: 'QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: glassStyle },
   { name: '旧・溶接講習', icon: Zap, url: 'https://yousetu.pages.dev/', color: glassStyle },
+  { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
+  { name: '目安箱(DX)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: glassStyle },
+  { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
+  { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
+  { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: glassStyle },
+  { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
   { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: glassStyle },
   { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: glassStyle },
 ];
+
+const alwaysVisibleNames = [
+  '生産モニター',
+  'トラモニ',
+  '新・溶接講習',
+  '不適切',
+  '不適合',
+  '事故発生',
+  'フォトログ',
+  '修理・メンテ',
+];
+
+const folderNames = ['カウンター', 'コールアプリ', 'QR生成', '旧・溶接講習'];
+const otherStartName = '目安箱';
+
+type FolderButtonProps = {
+  name: string;
+  apps: PortalApp[];
+  onOpen: () => void;
+};
+
+function FolderButton({ name, apps, onOpen }: FolderButtonProps) {
+  const previewApps = apps.slice(0, 4);
+
+  return (
+    <button
+      onClick={onOpen}
+      className="flex flex-col items-center justify-center gap-2 transition-all duration-200 hover:scale-105 active:scale-95 group"
+      aria-label={`${name}フォルダを開く`}
+    >
+      <div className={`${glassStyle} relative w-16 h-16 md:w-20 md:h-20 rounded-2xl shadow-lg p-1.5 md:p-2 transition-all duration-200 group-hover:shadow-xl`}>
+        <div className="grid h-full w-full grid-cols-2 gap-1">
+          {previewApps.map((app) => {
+            const Icon = app.icon;
+            return (
+              <div key={app.name} className="flex items-center justify-center rounded-md bg-black/20">
+                <Icon className="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-200" strokeWidth={2} />
+              </div>
+            );
+          })}
+        </div>
+        <span className="absolute -right-1 -top-1 rounded-full bg-sky-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-md">
+          {apps.length}
+        </span>
+      </div>
+      <span className="block w-full whitespace-nowrap overflow-hidden text-ellipsis text-xs md:text-sm text-slate-200 font-medium text-center leading-tight px-1">
+        {name}
+      </span>
+    </button>
+  );
+}
 
 // --- ここから下はそのまま ---
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [folderOpen, setFolderOpen] = useState(false);
+
+  const appMap = useMemo(() => new Map(apps.map((app) => [app.name, app])), []);
+  const alwaysVisibleApps = useMemo(
+    () => alwaysVisibleNames.map((name) => appMap.get(name)).filter((app): app is PortalApp => Boolean(app)),
+    [appMap]
+  );
+  const folderApps = useMemo(
+    () => folderNames.map((name) => appMap.get(name)).filter((app): app is PortalApp => Boolean(app)),
+    [appMap]
+  );
+  const otherApps = useMemo(() => {
+    const startIndex = apps.findIndex((app) => app.name === otherStartName);
+    if (startIndex < 0) return [];
+    const folderNameSet = new Set(folderNames);
+    return apps.slice(startIndex).filter((app) => !folderNameSet.has(app.name));
+  }, []);
 
   useEffect(() => {
     if (localStorage.getItem('nr-login') === 'true') {
@@ -91,24 +169,50 @@ function App() {
       <div className="relative z-10">
         {authenticated ? (
           <div className="container mx-auto px-3 py-5 max-w-7xl">
-            <header className="text-center mb-4">
-              <h1 className="text-3xl md:text-5xl font-bold text-slate-300 mb-1 italic">New River One</h1>
-              <p className="text-slate-300 text-xs md:text-sm">総合アプリケーションポータル</p>
-            </header>
-
             {/* ★ 追加：掲示板（縦幅コンパクトなカード） */}
             <BulletinBoard /> {/* ★ */}
 
-            <div className="grid grid-cols-4 md:grid-cols-8 gap-4 md:gap-6 mb-5">
-              {apps.map((app, index) => (
-                <AppIcon
-                  key={index}
-                  name={app.name}
-                  icon={app.icon}
-                  url={app.url}
-                  color={app.color}
+            <div className="mb-5 rounded-2xl border border-white/15 bg-black/10 p-4 md:p-5 backdrop-blur-md">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm md:text-base font-bold text-slate-100 tracking-wide">
+                  アプリ・システム
+                </h3>
+              </div>
+              <div className="grid grid-cols-3 md:grid-cols-8 gap-4 md:gap-6">
+                {alwaysVisibleApps.map((app) => (
+                  <AppIcon
+                    key={app.name}
+                    name={app.name}
+                    icon={app.icon}
+                    url={app.url}
+                    color={app.color}
+                  />
+                ))}
+                <FolderButton
+                  name="その他"
+                  apps={folderApps}
+                  onOpen={() => setFolderOpen(true)}
                 />
-              ))}
+              </div>
+            </div>
+
+            <div className="mb-5 rounded-2xl border border-white/15 bg-black/10 p-4 md:p-5 backdrop-blur-md">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm md:text-base font-bold text-slate-100 tracking-wide">
+                  その他
+                </h3>
+              </div>
+              <div className="grid grid-cols-3 md:grid-cols-8 gap-4 md:gap-6">
+                {otherApps.map((app) => (
+                  <AppIcon
+                    key={app.name}
+                    name={app.name}
+                    icon={app.icon}
+                    url={app.url}
+                    color={app.color}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         ) : (
@@ -168,6 +272,40 @@ function App() {
           </div>
         )}
       </div>
+      {folderOpen && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/70 px-4"
+          onClick={() => setFolderOpen(false)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-3xl border border-white/20 bg-white/10 p-5 shadow-2xl backdrop-blur-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h4 className="text-base md:text-lg font-bold text-slate-100">その他</h4>
+              <button
+                type="button"
+                onClick={() => setFolderOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 text-slate-100 transition-colors hover:bg-white/20"
+                aria-label="フォルダを閉じる"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-4 md:gap-6">
+              {folderApps.map((app) => (
+                <AppIcon
+                  key={app.name}
+                  name={app.name}
+                  icon={app.icon}
+                  url={app.url}
+                  color={app.color}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
