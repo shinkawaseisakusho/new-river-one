@@ -16,6 +16,7 @@ import {
   Bell,
   QrCode,
   Upload,
+  MessageCircleQuestion,
   Globe,
   Youtube,
   Plus,
@@ -56,10 +57,11 @@ const apps: PortalApp[] = [
   { name: 'コールアプリ', icon: Bell, url: 'https://shinkawa-calling-app.web.app/', color: glassStyle },
   { name: 'QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: glassStyle },
   { name: '旧・溶接講習', icon: Zap, url: 'https://yousetu.pages.dev/', color: glassStyle },
+  { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
+  { name: '報連相４択問題', icon: MessageCircleQuestion, url: 'https://forms.gle/dQfAJ2Az3t3J1RFE7', color: glassStyle },
+  { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
   { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
   { name: '目安箱(DX)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: glassStyle },
-  { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
-  { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
   { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: glassStyle },
   { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
   { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: glassStyle },
@@ -78,7 +80,7 @@ const alwaysVisibleNames = [
 ];
 
 const folderNames = ['カウンター', 'コールアプリ', 'QR生成', '旧・溶接講習'];
-const otherStartName = '目安箱';
+const otherStartName = '報連相ガイド';
 
 type FolderButtonProps = {
   name: string;
@@ -178,7 +180,7 @@ function App() {
                   アプリ・システム
                 </h3>
               </div>
-              <div className="grid grid-cols-3 md:grid-cols-8 gap-4 md:gap-6">
+              <div className="grid grid-cols-3 md:grid-cols-6 xl:grid-cols-8 gap-4 md:gap-6">
                 {alwaysVisibleApps.map((app) => (
                   <AppIcon
                     key={app.name}
@@ -202,7 +204,7 @@ function App() {
                   その他
                 </h3>
               </div>
-              <div className="grid grid-cols-3 md:grid-cols-8 gap-4 md:gap-6">
+              <div className="grid grid-cols-3 md:grid-cols-6 xl:grid-cols-8 gap-4 md:gap-6">
                 {otherApps.map((app) => (
                   <AppIcon
                     key={app.name}
