@@ -58,7 +58,7 @@ const apps: PortalApp[] = [
   { name: 'QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: glassStyle },
   { name: '旧・溶接講習', icon: Zap, url: 'https://yousetu.pages.dev/', color: glassStyle },
   { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
-  { name: '報連相４択問題', icon: MessageCircleQuestion, url: 'https://forms.gle/dQfAJ2Az3t3J1RFE7', color: glassStyle },
+  { name: '報連相４択', icon: MessageCircleQuestion, url: 'https://forms.gle/dQfAJ2Az3t3J1RFE7', color: glassStyle },
   { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
   { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
   { name: '目安箱(DX)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: glassStyle },
@@ -81,6 +81,7 @@ const alwaysVisibleNames = [
 
 const folderNames = ['カウンター', 'コールアプリ', 'QR生成', '旧・溶接講習'];
 const otherStartName = '報連相ガイド';
+const folderModalDurationMs = 280;
 
 type FolderButtonProps = {
   name: string;
@@ -124,7 +125,7 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [folderOpen, setFolderOpen] = useState(false);
+  const [folderModalPhase, setFolderModalPhase] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
 
   const appMap = useMemo(() => new Map(apps.map((app) => [app.name, app])), []);
   const alwaysVisibleApps = useMemo(
@@ -148,6 +149,18 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (folderModalPhase === 'opening') {
+      const rafId = window.requestAnimationFrame(() => setFolderModalPhase('open'));
+      return () => window.cancelAnimationFrame(rafId);
+    }
+    if (folderModalPhase === 'closing') {
+      const timerId = window.setTimeout(() => setFolderModalPhase('closed'), folderModalDurationMs);
+      return () => window.clearTimeout(timerId);
+    }
+    return;
+  }, [folderModalPhase]);
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (password.trim() === 'nr') {
@@ -157,6 +170,17 @@ function App() {
     }
     setError('パスワードが正しくありません');
   };
+
+  const openFolderModal = () => {
+    setFolderModalPhase((current) => (current === 'closed' ? 'opening' : current));
+  };
+
+  const closeFolderModal = () => {
+    setFolderModalPhase((current) => (current === 'closed' || current === 'closing' ? current : 'closing'));
+  };
+
+  const isFolderModalMounted = folderModalPhase !== 'closed';
+  const isFolderModalOpen = folderModalPhase === 'open';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-800 to-indigo-200">
@@ -176,11 +200,12 @@ function App() {
 
             <div className="mb-5 rounded-2xl border border-white/15 bg-black/10 p-4 md:p-5 backdrop-blur-md">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm md:text-base font-bold text-slate-100 tracking-wide">
+                <h3 className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs md:text-sm font-bold text-slate-100 tracking-wide">
+                  <span className="h-2 w-2 rounded-full bg-sky-300" aria-hidden="true" />
                   アプリ・システム
                 </h3>
               </div>
-              <div className="grid grid-cols-3 md:grid-cols-6 xl:grid-cols-8 gap-4 md:gap-6">
+              <div className="grid grid-cols-3 md:grid-cols-6 xl:grid-cols-8 gap-x-4 gap-y-5 md:gap-x-6 md:gap-y-7">
                 {alwaysVisibleApps.map((app) => (
                   <AppIcon
                     key={app.name}
@@ -191,20 +216,21 @@ function App() {
                   />
                 ))}
                 <FolderButton
-                  name="その他"
+                  name="その他アプリ"
                   apps={folderApps}
-                  onOpen={() => setFolderOpen(true)}
+                  onOpen={openFolderModal}
                 />
               </div>
             </div>
 
             <div className="mb-5 rounded-2xl border border-white/15 bg-black/10 p-4 md:p-5 backdrop-blur-md">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm md:text-base font-bold text-slate-100 tracking-wide">
+                <h3 className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs md:text-sm font-bold text-slate-100 tracking-wide">
+                  <span className="h-2 w-2 rounded-full bg-indigo-300" aria-hidden="true" />
                   その他
                 </h3>
               </div>
-              <div className="grid grid-cols-3 md:grid-cols-6 xl:grid-cols-8 gap-4 md:gap-6">
+              <div className="grid grid-cols-3 md:grid-cols-6 xl:grid-cols-8 gap-x-4 gap-y-5 md:gap-x-6 md:gap-y-7">
                 {otherApps.map((app) => (
                   <AppIcon
                     key={app.name}
@@ -274,27 +300,27 @@ function App() {
           </div>
         )}
       </div>
-      {folderOpen && (
+      {isFolderModalMounted && (
         <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/70 px-4"
-          onClick={() => setFolderOpen(false)}
+          className={`fixed inset-0 z-40 flex items-center justify-center px-4 transition-all duration-300 ease-out ${isFolderModalOpen ? 'bg-slate-950/70 backdrop-blur-[2px] opacity-100' : 'bg-slate-950/0 backdrop-blur-0 opacity-0'}`}
+          onClick={closeFolderModal}
         >
           <div
-            className="w-full max-w-2xl rounded-3xl border border-white/20 bg-white/10 p-5 shadow-2xl backdrop-blur-xl"
+            className={`w-full max-w-2xl rounded-3xl border border-white/20 bg-white/10 p-5 shadow-2xl backdrop-blur-xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${isFolderModalOpen ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-6 scale-90 opacity-0'}`}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
               <h4 className="text-base md:text-lg font-bold text-slate-100">その他</h4>
               <button
                 type="button"
-                onClick={() => setFolderOpen(false)}
+                onClick={closeFolderModal}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 text-slate-100 transition-colors hover:bg-white/20"
                 aria-label="フォルダを閉じる"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-3 gap-x-4 gap-y-5 md:gap-x-6 md:gap-y-7">
               {folderApps.map((app) => (
                 <AppIcon
                   key={app.name}

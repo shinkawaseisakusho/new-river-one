@@ -60,16 +60,30 @@ export default function BulletinBoard() {
   const maxLen = 200;
   const visibleCount = 5;
 
-  // ★ 追記: 日本時間(JST)で "MM/DD HH:mm" に整形するフォーマッタ
-  const dtf = useMemo(
+  // ★ 追記: 日本時間(JST)で "MM/DD（曜）HH:mm" に整形するフォーマッタ
+  const dateTimeFormatter = useMemo(
     () =>
       new Intl.DateTimeFormat('ja-JP', {
         timeZone: 'Asia/Tokyo', // ★ JST
         month: '2-digit',
         day: '2-digit',
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
       }),
     []
   ); // ★
+
+  const formatWhen = (isoDate: string) => {
+    const parts = dateTimeFormatter.formatToParts(new Date(isoDate));
+    const month = parts.find((part) => part.type === 'month')?.value ?? '';
+    const day = parts.find((part) => part.type === 'day')?.value ?? '';
+    const weekday = parts.find((part) => part.type === 'weekday')?.value ?? '';
+    const hour = parts.find((part) => part.type === 'hour')?.value ?? '';
+    const minute = parts.find((part) => part.type === 'minute')?.value ?? '';
+    return `${month}/${day}（${weekday}） ${hour}:${minute}`;
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -176,33 +190,39 @@ export default function BulletinBoard() {
               Array.from({ length: visibleCount }).map((_, index) => (
                 <li
                   key={`loading-${index}`}
-                  className="flex min-h-10 items-center gap-2 rounded-xl bg-white/5 px-2 py-1.5"
+                  className="min-h-10 rounded-xl bg-white/5 px-2 py-1.5"
                   aria-hidden
                 >
-                  <span className="h-5 w-14 animate-pulse rounded bg-sky-500/20" />
-                  <span className="h-4 flex-1 animate-pulse rounded bg-white/10" />
+                  <span className="mb-1 block h-5 w-28 animate-pulse rounded bg-sky-500/20" />
+                  <span className="block h-4 w-full animate-pulse rounded bg-white/10" />
                 </li>
               ))
             ) : (
               <>
                 {visibleItems.map((it) => {
-                  const when = dtf.format(new Date(it.created_at));
+                  const when = formatWhen(it.created_at);
                   const isExpanded = expandedId === it.id;
 
                   return (
                     <li
                       key={it.id}
                       onClick={() => toggleExpand(it.id)}
-                      className={`group flex min-h-10 items-start gap-1 rounded-xl bg-white/5 px-2 py-1.5 transition-all hover:bg-white/10 hover:shadow-md cursor-pointer ${isExpanded ? 'bg-white/10' : ''}`}
+                      className={`group min-h-10 rounded-xl bg-white/5 px-2 py-1.5 transition-all hover:bg-white/10 hover:shadow-md cursor-pointer ${isExpanded ? 'bg-white/10' : ''}`}
                     >
-                      {/* 時刻：バッジスタイルで見やすく */}
-                      <span className="flex-shrink-0 rounded bg-sky-500/10 px-1 py-0.5 text-[10px] md:text-sm font-bold tracking-wide text-sky-300 border border-sky-500/20 tabular-nums mt-0.5">
-                        {when}
-                      </span>
+                      <div className="mb-1 flex w-full items-center justify-between">
+                        {/* 日付/曜日/時刻 */}
+                        <span className="rounded bg-sky-500/10 px-1.5 py-0.5 text-xs md:text-sm font-bold tracking-wide text-sky-200 border border-sky-500/20 tabular-nums">
+                          {when}
+                        </span>
+                        {/* ホバー時に出現するアクセント */}
+                        <div className={`opacity-0 transition-opacity group-hover:opacity-100 ${isExpanded ? 'opacity-100' : ''}`}>
+                          <div className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_5px_rgba(56,189,248,0.8)]" />
+                        </div>
+                      </div>
 
-                      {/* テキスト：省略表示しつつ、ホバーで少し明るく */}
+                      {/* テキスト：省略表示しつつ、ホバーで少し明るく（縦配置） */}
                       <span
-                        className={`flex-1 text-sm md:text-base text-slate-300 group-hover:text-slate-100 self-center ${isExpanded
+                        className={`block w-full text-sm md:text-base text-slate-200 group-hover:text-slate-100 ${isExpanded
                             ? 'whitespace-normal break-words'
                             : 'overflow-hidden [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] break-words'
                           }`}
@@ -210,11 +230,6 @@ export default function BulletinBoard() {
                       >
                         {renderContentWithLinks(it.content)}
                       </span>
-
-                      {/* ホバー時に出現する矢印などの装飾（オプション） */}
-                      <div className={`opacity-0 transition-opacity group-hover:opacity-100 ${isExpanded ? 'opacity-100' : ''}`}>
-                        <div className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_5px_rgba(56,189,248,0.8)] mt-2" />
-                      </div>
                     </li>
                   );
                 })}
