@@ -59,7 +59,7 @@ const apps: PortalApp[] = [
   { name: 'QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: glassStyle },
   { name: '旧・溶接講習', icon: Zap, url: 'https://yousetu.pages.dev/', color: glassStyle },
   { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
-  { name: '報連相AI', icon: Bot, url: 'https://chatgpt.com/g/g-699d2ed24998819182621edbfee0c7e0-bao-lian-xiang-nahi', color: glassStyle },
+  { name: '報連相AI', icon: Bot, url: 'https://chatgpt.com/g/g-699d2ed24998819182621edbfee0c7e0-bao-lian-xiang-ai', color: glassStyle },
   { name: '報連相４択', icon: MessageCircleQuestion, url: 'https://forms.gle/dQfAJ2Az3t3J1RFE7', color: glassStyle },
   { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
   { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
