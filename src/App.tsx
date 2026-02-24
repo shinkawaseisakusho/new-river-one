@@ -45,7 +45,7 @@ type PortalApp = {
 };
 
 const apps: PortalApp[] = [
-  { name: '生産モニター', icon: Factory, url: 'https://real-time-count-shinkawa.web.app/', color: glassStyle },
+  { name: '生産モニター', icon: Factory, url: 'https://real-time-count-shinkawa.web.app/analysis/daily', color: glassStyle },
   { name: 'トラモニ', icon: Truck, url: 'https://truck-monitor-26773.web.app/', color: glassStyle },
   { name: '新・溶接講習', icon: Zap, url: 'https://yosetsu-koshu.web.app/', color: glassStyle },
   { name: '不適切', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: glassStyle },
