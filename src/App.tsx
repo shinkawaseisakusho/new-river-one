@@ -9,7 +9,7 @@ import {
   FileX,
   AlertTriangle,
   Lightbulb,
-  MessageSquare,
+  Code2,
   Trophy,
   Newspaper,
   Image,
@@ -29,12 +29,14 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import AppIcon from './components/AppIcon';
+import { supabase } from './lib/supabase';
 
 // ★ 追記：掲示板を読み込み
 import BulletinBoard from './components/BulletinBoard'; // ★
 
 // ★ 追記: GitHub Pagesのサブパス（/new-river-one/）に自動追従するためのbase
 const base = import.meta.env.BASE_URL; // ★
+const sharedLoginEmail = (import.meta.env.VITE_SHARED_LOGIN_EMAIL as string | undefined)?.trim() ?? '';
 
 const glassStyle = 'bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-gray-700';
 
@@ -61,11 +63,11 @@ const apps: PortalApp[] = [
   { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
   { name: '報連相AI', icon: Bot, url: 'https://chatgpt.com/g/g-699d2ed24998819182621edbfee0c7e0-bao-lian-xiang-ai', color: glassStyle },
   { name: '報連相４択', icon: MessageCircleQuestion, url: 'https://forms.gle/dQfAJ2Az3t3J1RFE7', color: glassStyle },
-  { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
-  { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
-  { name: '目安箱(DX)', icon: MessageSquare, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: glassStyle },
   { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: glassStyle },
   { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
+  { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
+  { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
+  { name: '目安箱(DX)', icon: Code2, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: glassStyle },
   { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: glassStyle },
   { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: glassStyle },
 ];
@@ -74,14 +76,13 @@ const alwaysVisibleNames = [
   '生産モニター',
   'トラモニ',
   '新・溶接講習',
-  '不適切',
-  '不適合',
-  '事故発生',
   'フォトログ',
   '修理・メンテ',
 ];
 
-const folderNames = ['カウンター', 'コールアプリ', 'QR生成', '旧・溶接講習'];
+const reportFolderNames = ['不適切', '不適合', '事故発生'];
+const horensoFolderNames = ['報連相ガイド', '報連相AI', '報連相４択'];
+const otherFolderNames = ['カウンター', 'コールアプリ', 'QR生成', '旧・溶接講習'];
 const otherStartName = '報連相ガイド';
 const folderModalDurationMs = 280;
 
@@ -115,7 +116,7 @@ function FolderButton({ name, apps, onOpen }: FolderButtonProps) {
           {apps.length}
         </span>
       </div>
-      <span className="block w-full whitespace-nowrap overflow-hidden text-ellipsis text-xs md:text-sm text-slate-200 font-medium text-center leading-tight px-1">
+      <span className="block w-full whitespace-nowrap overflow-hidden text-ellipsis text-xs md:text-sm text-white/95 font-semibold text-center leading-tight px-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
         {name}
       </span>
     </button>
@@ -125,8 +126,11 @@ function FolderButton({ name, apps, onOpen }: FolderButtonProps) {
 // --- ここから下はそのまま ---
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [activeFolderName, setActiveFolderName] = useState('');
   const [folderModalPhase, setFolderModalPhase] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
 
   const appMap = useMemo(() => new Map(apps.map((app) => [app.name, app])), []);
@@ -134,21 +138,53 @@ function App() {
     () => alwaysVisibleNames.map((name) => appMap.get(name)).filter((app): app is PortalApp => Boolean(app)),
     [appMap]
   );
-  const folderApps = useMemo(
-    () => folderNames.map((name) => appMap.get(name)).filter((app): app is PortalApp => Boolean(app)),
+  const reportFolderApps = useMemo(
+    () => reportFolderNames.map((name) => appMap.get(name)).filter((app): app is PortalApp => Boolean(app)),
+    [appMap]
+  );
+  const horensoFolderApps = useMemo(
+    () => horensoFolderNames.map((name) => appMap.get(name)).filter((app): app is PortalApp => Boolean(app)),
+    [appMap]
+  );
+  const otherFolderApps = useMemo(
+    () => otherFolderNames.map((name) => appMap.get(name)).filter((app): app is PortalApp => Boolean(app)),
     [appMap]
   );
   const otherApps = useMemo(() => {
     const startIndex = apps.findIndex((app) => app.name === otherStartName);
     if (startIndex < 0) return [];
-    const folderNameSet = new Set(folderNames);
+    const folderNameSet = new Set([...reportFolderNames, ...horensoFolderNames, ...otherFolderNames]);
     return apps.slice(startIndex).filter((app) => !folderNameSet.has(app.name));
   }, []);
 
   useEffect(() => {
-    if (localStorage.getItem('nr-login') === 'true') {
-      setAuthenticated(true);
-    }
+    localStorage.removeItem('nr-login');
+
+    let mounted = true;
+    const initSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!mounted) return;
+        setAuthenticated(Boolean(data.session));
+      } finally {
+        if (mounted) {
+          setAuthLoading(false);
+        }
+      }
+    };
+    void initSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthenticated(Boolean(session));
+      if (!session) {
+        setPassword('');
+      }
+    });
+
+    return () => {
+      mounted = false;
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -157,23 +193,53 @@ function App() {
       return () => window.cancelAnimationFrame(rafId);
     }
     if (folderModalPhase === 'closing') {
-      const timerId = window.setTimeout(() => setFolderModalPhase('closed'), folderModalDurationMs);
+      const timerId = window.setTimeout(() => {
+        setFolderModalPhase('closed');
+        setActiveFolderName('');
+      }, folderModalDurationMs);
       return () => window.clearTimeout(timerId);
     }
     return;
   }, [folderModalPhase]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (password.trim() === 'nr') {
-      localStorage.setItem('nr-login', 'true');
-      setAuthenticated(true);
+    setError('');
+
+    if (password.length === 0) {
+      setError('パスワードを入力してください');
       return;
     }
-    setError('パスワードが正しくありません');
+
+    if (sharedLoginEmail.length === 0) {
+      setError('ログイン設定が未完了です。管理者に連絡してください。');
+      return;
+    }
+
+    setSubmitting(true);
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: sharedLoginEmail,
+      password,
+    });
+    setSubmitting(false);
+
+    if (!signInError) {
+      setPassword('');
+      return;
+    }
+
+    setError('ログインに失敗しました。パスワードを確認してください。');
   };
 
-  const openFolderModal = () => {
+  const activeFolderApps = useMemo(() => {
+    if (activeFolderName === '報告書') return reportFolderApps;
+    if (activeFolderName === '報連相') return horensoFolderApps;
+    if (activeFolderName === 'その他アプリ') return otherFolderApps;
+    return [];
+  }, [activeFolderName, reportFolderApps, horensoFolderApps, otherFolderApps]);
+
+  const openFolderModal = (folderName: string) => {
+    setActiveFolderName(folderName);
     setFolderModalPhase((current) => (current === 'closed' ? 'opening' : current));
   };
 
@@ -181,7 +247,7 @@ function App() {
     setFolderModalPhase((current) => (current === 'closed' || current === 'closing' ? current : 'closing'));
   };
 
-  const isFolderModalMounted = folderModalPhase !== 'closed';
+  const isFolderModalMounted = folderModalPhase !== 'closed' && activeFolderName.length > 0;
   const isFolderModalOpen = folderModalPhase === 'open';
 
   return (
@@ -195,6 +261,9 @@ function App() {
         <div className="absolute top-[40%] left-[40%] w-80 h-80 bg-purple-500/20 rounded-full mix-blend-screen filter blur-[100px] opacity-40 animate-blob animation-delay-4000" />
       </div>
       <div className="relative z-10">
+        {authLoading ? (
+          <div className="flex min-h-screen items-center justify-center text-sky-100">認証状態を確認中...</div>
+        ) : null}
         {authenticated ? (
           <div className="container mx-auto px-3 py-5 max-w-7xl">
             {/* ★ 追加：掲示板（縦幅コンパクトなカード） */}
@@ -218,9 +287,14 @@ function App() {
                   />
                 ))}
                 <FolderButton
+                  name="報告書"
+                  apps={reportFolderApps}
+                  onOpen={() => openFolderModal('報告書')}
+                />
+                <FolderButton
                   name="その他アプリ"
-                  apps={folderApps}
-                  onOpen={openFolderModal}
+                  apps={otherFolderApps}
+                  onOpen={() => openFolderModal('その他アプリ')}
                 />
               </div>
             </div>
@@ -233,6 +307,11 @@ function App() {
                 </h3>
               </div>
               <div className="grid grid-cols-3 md:grid-cols-6 xl:grid-cols-8 gap-x-4 gap-y-5 md:gap-x-6 md:gap-y-7">
+                <FolderButton
+                  name="報連相"
+                  apps={horensoFolderApps}
+                  onOpen={() => openFolderModal('報連相')}
+                />
                 {otherApps.map((app) => (
                   <AppIcon
                     key={app.name}
@@ -245,7 +324,7 @@ function App() {
               </div>
             </div>
           </div>
-        ) : (
+        ) : !authLoading ? (
           // --- ログイン前：ログイン画面（中央揃え） ---
           <div className="flex-1 flex items-center justify-center p-4">
             <div className="relative w-full max-w-md">
@@ -280,6 +359,7 @@ function App() {
                         }}
                         className="block w-full rounded-xl border border-white/10 bg-black/20 pl-10 pr-4 py-3 text-white placeholder-white/20 shadow-inner transition-all focus:border-sky-400/50 focus:bg-black/30 focus:outline-none focus:ring-2 focus:ring-sky-400/20"
                         placeholder="パスワードを入力"
+                        autoComplete="current-password"
                         autoFocus
                       />
                     </div>
@@ -292,15 +372,16 @@ function App() {
 
                   <button
                     type="submit"
+                    disabled={submitting}
                     className="w-full rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 py-3.5 text-white font-bold shadow-lg transition-all hover:scale-[1.02] hover:shadow-sky-500/25 active:scale-[0.98]"
                   >
-                    ログイン
+                    {submitting ? 'ログイン中...' : 'ログイン'}
                   </button>
                 </form>
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
       {isFolderModalMounted && (
         <div
@@ -312,7 +393,7 @@ function App() {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h4 className="text-base md:text-lg font-bold text-slate-100">その他</h4>
+              <h4 className="text-base md:text-lg font-bold text-slate-100">{activeFolderName}</h4>
               <button
                 type="button"
                 onClick={closeFolderModal}
@@ -323,7 +404,7 @@ function App() {
               </button>
             </div>
             <div className="grid grid-cols-3 gap-x-4 gap-y-5 md:gap-x-6 md:gap-y-7">
-              {folderApps.map((app) => (
+              {activeFolderApps.map((app) => (
                 <AppIcon
                   key={app.name}
                   name={app.name}
