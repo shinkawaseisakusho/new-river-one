@@ -9,7 +9,7 @@ import {
   FileX,
   AlertTriangle,
   Lightbulb,
-  Code2,
+  // Code2,
   Trophy,
   Newspaper,
   Image,
@@ -67,7 +67,6 @@ const apps: PortalApp[] = [
   { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
   { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
   { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
-  { name: '目安箱(DX)', icon: Code2, url: 'https://forms.gle/62YPouEUw7CW7CY47', color: glassStyle },
   { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: glassStyle },
   { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: glassStyle },
 ];
