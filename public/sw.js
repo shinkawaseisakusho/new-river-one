@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nr-one-v1';
+const CACHE_NAME = 'nr-one-v2';
 const APP_SHELL = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
@@ -29,6 +29,34 @@ self.addEventListener('fetch', (event) => {
 
   const requestUrl = new URL(request.url);
   if (requestUrl.origin !== self.location.origin) {
+    return;
+  }
+
+  const isDocumentRequest = request.mode === 'navigate' || request.destination === 'document';
+  if (isDocumentRequest) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put('./index.html', copy);
+            });
+          }
+          return response;
+        })
+        .catch(async () => {
+          const cachedDocument = await caches.match(request);
+          if (cachedDocument) {
+            return cachedDocument;
+          }
+          const cachedIndex = await caches.match('./index.html');
+          if (cachedIndex) {
+            return cachedIndex;
+          }
+          return caches.match('./');
+        })
+    );
     return;
   }
 
