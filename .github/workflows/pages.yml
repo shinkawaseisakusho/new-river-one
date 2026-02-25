@@ -21,6 +21,7 @@ jobs:
     env:
       VITE_SUPABASE_URL: https://nkyqsfycsbmntyeofnhr.supabase.co   # ★
       VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5reXFzZnljc2JtbnR5ZW9mbmhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MzI4NDAsImV4cCI6MjA3ODQwODg0MH0.0ZTPyWi0B4JAj7_r0ZFa4tY3c-F3xBED34wchRVh2Oc     # ★
+      VITE_SHARED_LOGIN_EMAIL: ${{ vars.VITE_SHARED_LOGIN_EMAIL }} # ★
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,6 +32,9 @@ jobs:
           cache: "npm"
       - name: Install
         run: npm install
+      - name: Validate build env
+        run: |
+          test -n "$VITE_SHARED_LOGIN_EMAIL" || (echo "VITE_SHARED_LOGIN_EMAIL is not set"; exit 1)
       - name: Build
         run: npm run build
       - name: SPA 404 fallback
