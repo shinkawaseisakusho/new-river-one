@@ -50,7 +50,7 @@ type PortalApp = {
 const apps: PortalApp[] = [
   { name: '生産モニター', icon: Factory, url: 'https://real-time-count-shinkawa.web.app/analysis/daily', color: glassStyle },
   { name: 'トラモニ', icon: Truck, url: 'https://truck-monitor-26773.web.app/', color: glassStyle },
-  { name: '新・溶接講習', icon: Zap, url: 'https://yosetsu-koshu.web.app/', color: glassStyle },
+  { name: '溶接講習', icon: Zap, url: 'https://yosetsu-koshu.web.app/', color: glassStyle },
   { name: '不適切', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: glassStyle },
   { name: '不適合', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: glassStyle },
   { name: '事故発生', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: glassStyle },
@@ -65,7 +65,7 @@ const apps: PortalApp[] = [
   { name: '報連相４択', icon: MessageCircleQuestion, url: 'https://forms.gle/dQfAJ2Az3t3J1RFE7', color: glassStyle },
   { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: glassStyle },
   { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
-  { name: '画像・動画', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
+  { name: '画像動画送信', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
   { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
   { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: glassStyle },
   { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: glassStyle },
@@ -74,7 +74,7 @@ const apps: PortalApp[] = [
 const alwaysVisibleNames = [
   '生産モニター',
   'トラモニ',
-  '新・溶接講習',
+  '溶接講習',
   'フォトログ',
   '修理・メンテ',
 ];
