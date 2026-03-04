@@ -24,15 +24,13 @@ import {
   Lock,
   Wrench,
   X,
-  // ★ 追記: PDF用のアイコン
-  FileText, // ★
+  FileText,
+  Video,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import AppIcon from './components/AppIcon';
 import { supabase } from './lib/supabase';
-
-// ★ 追記：掲示板を読み込み
-import BulletinBoard from './components/BulletinBoard'; // ★
+import BulletinBoard from './components/BulletinBoard';
 
 // ★ 追記: GitHub Pagesのサブパス（/new-river-one/）に自動追従するためのbase
 const base = import.meta.env.BASE_URL; // ★
@@ -65,8 +63,9 @@ const apps: PortalApp[] = [
   { name: '報連相４択', icon: MessageCircleQuestion, url: 'https://forms.gle/dQfAJ2Az3t3J1RFE7', color: glassStyle },
   { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: glassStyle },
   { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
-  { name: '画像動画送信', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
   { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
+  { name: '画像動画送信', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
+  { name: '振り返り動画', icon: Video, url: 'https://drive.google.com/drive/folders/1B8g3XHcwxlP9KpniCapHLdP6NJ4ncHlF?usp=drive_link', color: glassStyle },
   { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: glassStyle },
   { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: glassStyle },
 ];
