@@ -33,8 +33,8 @@ import BulletinBoard from './components/BulletinBoard';
 import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './lib/firebase';
 
-// ★ 追記: GitHub Pagesのサブパス（/new-river-one/）に自動追従するためのbase
-const base = import.meta.env.BASE_URL; // ★
+// デプロイ先ごとのbaseパス（Firebase Hosting: /, GitHub Pages: /new-river-one/）
+const base = import.meta.env.BASE_URL;
 const sharedLoginEmail = (import.meta.env.VITE_SHARED_LOGIN_EMAIL as string | undefined)?.trim() ?? '';
 
 const glassStyle = 'bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-gray-700';

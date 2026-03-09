@@ -19,6 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      VITE_BASE_PATH: /new-river-one/
       VITE_SHARED_LOGIN_EMAIL: ${{ vars.VITE_SHARED_LOGIN_EMAIL }} # ★
     steps:
       - name: Checkout
@@ -34,7 +35,7 @@ jobs:
         run: |
           test -n "$VITE_SHARED_LOGIN_EMAIL" || (echo "VITE_SHARED_LOGIN_EMAIL is not set"; exit 1)
       - name: Build
-        run: npm run build
+        run: npm run build:pages
       - name: SPA 404 fallback
         run: cp dist/index.html dist/404.html
       - name: Configure Pages # ★ Pagesを構成（必須）
