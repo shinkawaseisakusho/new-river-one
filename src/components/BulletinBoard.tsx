@@ -1,9 +1,18 @@
-// src/components/BulletinBoard.tsx - 社内掲示板。誰でも投稿可・最新5件表示・1件200文字/1行・縦幅コンパクト
+// src/components/BulletinBoard.tsx - 社内掲示板。誰でも投稿可・最新5件表示・1件200文字・縦幅コンパクト
 // ★ 修正: 投稿日時を自動保存（DB既定）＋ UIでJST整形して表示
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { supabase } from '../lib/supabase';
 import { Send } from 'lucide-react';
+import {
+  addDoc,
+  collection,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 type Bullet = {
   id: string;
@@ -86,37 +95,52 @@ export default function BulletinBoard() {
   };
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const { data, error } = await supabase
-        .from('bulletin')
-        .select('id, content, created_at') // ★ created_at を取得
-        .order('created_at', { ascending: false })
-        .limit(visibleCount);
-      if (mounted) {
-        if (!error && data) setItems(data);
+    const bulletinQuery = query(
+      collection(db, 'bulletin'),
+      orderBy('createdAt', 'desc'),
+      limit(visibleCount)
+    );
+
+    const unsubscribe = onSnapshot(
+      bulletinQuery,
+      (snapshot) => {
+        const nextItems: Bullet[] = snapshot.docs.map((doc) => {
+          const data = doc.data() as {
+            content?: unknown;
+            createdAt?: { toDate?: () => Date } | null;
+            created_at?: string;
+          };
+          const content = typeof data.content === 'string' ? data.content : '';
+          const createdAtIsoFromTimestamp =
+            data.createdAt &&
+            typeof data.createdAt === 'object' &&
+            'toDate' in data.createdAt &&
+            typeof data.createdAt.toDate === 'function'
+              ? data.createdAt.toDate().toISOString()
+              : null;
+          const createdAtIso =
+            createdAtIsoFromTimestamp ??
+            (typeof data.created_at === 'string' ? data.created_at : new Date().toISOString());
+
+          return {
+            id: doc.id,
+            content,
+            created_at: createdAtIso,
+          };
+        });
+
+        setItems(nextItems);
+        setLoading(false);
+      },
+      () => {
         setLoading(false);
       }
-    })();
-
-    // ★ Realtime: INSERT を受けて先頭に追加（作成時刻はDBが自動付与）
-    const channel = supabase
-      .channel('realtime-bulletin')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'bulletin' },
-        (payload) => {
-          const row = payload.new as Bullet; // ★ row.created_at はUTCのISO
-          setItems((prev) => [row, ...prev].slice(0, visibleCount));
-        }
-      )
-      .subscribe();
+    );
 
     return () => {
-      mounted = false;
-      supabase.removeChannel(channel);
+      unsubscribe();
     };
-  }, []);
+  }, [visibleCount]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,10 +154,22 @@ export default function BulletinBoard() {
     if (normalized.length > maxLen) return; // ★
 
     setPosting(true);
-    // ★ 修正: DBへは正規化後の文字列を保存
-    const { error } = await supabase.from('bulletin').insert({ content: normalized }); // ★
-    setPosting(false);
-    if (!error) setText(''); // 成功時のみ入力をクリア
+    try {
+      await addDoc(collection(db, 'bulletin'), {
+        content: normalized,
+        createdAt: serverTimestamp(),
+      });
+      setText('');
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      e.currentTarget.form?.requestSubmit();
+    }
   };
 
   const toggleExpand = (id: string) => {
@@ -155,16 +191,17 @@ export default function BulletinBoard() {
         {/* 入力エリア：カプセル型でモダンに */}
         <form onSubmit={submit} className="relative flex items-center gap-2 group">
           <div className="relative flex-1">
-            <input
-              type="text"
+            <textarea
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, maxLen))}
+              onKeyDown={handleEditorKeyDown}
               maxLength={maxLen}
+              rows={2}
               placeholder="掲示板に書き込む（最新5件表示）"
-              className="w-full rounded-full border border-white/10 bg-black/20 px-3 py-2 text-xs md:text-sm text-slate-100 placeholder-slate-400 shadow-inner transition-all focus:border-sky-400/50 focus:bg-black/30 focus:outline-none focus:ring-2 focus:ring-sky-400/20"
+              className="w-full resize-none rounded-2xl border border-white/10 bg-black/20 px-3 py-2 pr-16 text-xs md:text-sm text-slate-100 placeholder-slate-400 shadow-inner transition-all focus:border-sky-400/50 focus:bg-black/30 focus:outline-none focus:ring-2 focus:ring-sky-400/20"
             />
             {/* 文字数カウンター（入力時のみ表示などの制御も可） */}
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+            <span className="absolute bottom-2 right-3 text-[10px] text-slate-400">
               {text.length}/{maxLen}
             </span>
           </div>
@@ -223,8 +260,8 @@ export default function BulletinBoard() {
                       {/* テキスト：省略表示しつつ、ホバーで少し明るく（縦配置） */}
                       <span
                         className={`block w-full text-sm md:text-base text-slate-200 group-hover:text-slate-100 ${isExpanded
-                            ? 'whitespace-normal break-words'
-                            : 'overflow-hidden [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] break-words'
+                            ? 'whitespace-pre-wrap break-words'
+                            : 'whitespace-pre-wrap overflow-hidden [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] break-words'
                           }`}
                         title={!isExpanded ? `${when} ${it.content}` : ''}
                       >

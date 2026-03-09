@@ -29,8 +29,9 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import AppIcon from './components/AppIcon';
-import { supabase } from './lib/supabase';
 import BulletinBoard from './components/BulletinBoard';
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './lib/firebase';
 
 // ★ 追記: GitHub Pagesのサブパス（/new-river-one/）に自動追従するためのbase
 const base = import.meta.env.BASE_URL; // ★
@@ -158,30 +159,16 @@ function App() {
   useEffect(() => {
     localStorage.removeItem('nr-login');
 
-    let mounted = true;
-    const initSession = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (!mounted) return;
-        setAuthenticated(Boolean(data.session));
-      } finally {
-        if (mounted) {
-          setAuthLoading(false);
-        }
-      }
-    };
-    void initSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAuthenticated(Boolean(session));
-      if (!session) {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setAuthenticated(Boolean(user));
+      if (!user) {
         setPassword('');
       }
+      setAuthLoading(false);
     });
 
     return () => {
-      mounted = false;
-      authListener.subscription.unsubscribe();
+      unsubscribe();
     };
   }, []);
 
@@ -215,18 +202,15 @@ function App() {
     }
 
     setSubmitting(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: sharedLoginEmail,
-      password,
-    });
-    setSubmitting(false);
-
-    if (!signInError) {
+    try {
+      await signInWithEmailAndPassword(auth, sharedLoginEmail, password);
       setPassword('');
       return;
+    } catch {
+      setError('ログインに失敗しました。パスワードを確認してください。');
+    } finally {
+      setSubmitting(false);
     }
-
-    setError('ログインに失敗しました。パスワードを確認してください。');
   };
 
   const activeFolderApps = useMemo(() => {
