@@ -39,6 +39,9 @@ const sharedLoginEmail = (import.meta.env.VITE_SHARED_LOGIN_EMAIL as string | un
 
 const glassStyle = 'bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-gray-700';
 
+const c = (bg: string, border: string) =>
+  `${bg} backdrop-blur-md border ${border} shadow-sm`;
+
 type PortalApp = {
   name: string;
   icon: LucideIcon;
@@ -47,28 +50,28 @@ type PortalApp = {
 };
 
 const apps: PortalApp[] = [
-  { name: '生産モニター', icon: Factory, url: 'https://real-time-count-shinkawa.web.app/analysis/daily', color: glassStyle },
-  { name: 'トラモニ', icon: Truck, url: 'https://truck-monitor-26773.web.app/', color: glassStyle },
-  { name: '溶接講習', icon: Zap, url: 'https://yosetsu-koshu.web.app/', color: glassStyle },
-  { name: '不適切', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: glassStyle },
-  { name: '不適合', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: glassStyle },
-  { name: '事故発生', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: glassStyle },
-  { name: 'フォトログ', icon: Image, url: 'https://manufacturing-log-shinkawa.web.app/', color: glassStyle },
-  { name: '修理・メンテ', icon: Wrench, url: 'https://shinkawa-repair-maintenance.web.app/', color: glassStyle },
-  { name: 'カウンター', icon: Plus, url: 'https://counter-shinkawa.web.app/', color: glassStyle },
-  { name: 'コールアプリ', icon: Bell, url: 'https://shinkawa-calling-app.web.app/', color: glassStyle },
-  { name: 'QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: glassStyle },
-  { name: '旧・溶接講習', icon: Zap, url: 'https://yousetu.pages.dev/', color: glassStyle },
-  { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: glassStyle },
-  { name: '報連相AI', icon: Bot, url: 'https://chatgpt.com/g/g-699d2ed24998819182621edbfee0c7e0-bao-lian-xiang-ai', color: glassStyle },
-  { name: '報連相４択', icon: MessageCircleQuestion, url: 'https://forms.gle/dQfAJ2Az3t3J1RFE7', color: glassStyle },
-  { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: glassStyle },
-  { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: glassStyle },
-  { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: glassStyle },
-  { name: '画像動画送信', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: glassStyle },
-  { name: '振り返り動画', icon: Video, url: 'https://drive.google.com/drive/folders/1B8g3XHcwxlP9KpniCapHLdP6NJ4ncHlF?usp=drive_link', color: glassStyle },
-  { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: glassStyle },
-  { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: glassStyle },
+  { name: '生産モニター', icon: Factory, url: 'https://real-time-count-shinkawa.web.app/analysis/daily', color: c('bg-blue-400/30', 'border-blue-300/40') },
+  { name: 'トラモニ', icon: Truck, url: 'https://truck-monitor-26773.web.app/', color: c('bg-cyan-400/30', 'border-cyan-300/40') },
+  { name: '溶接講習', icon: Zap, url: 'https://yosetsu-koshu.web.app/', color: c('bg-orange-400/30', 'border-orange-300/40') },
+  { name: '不適切', icon: FileWarning, url: 'https://futekisetsu.web.app/', color: c('bg-pink-400/30', 'border-pink-300/40') },
+  { name: '不適合', icon: FileX, url: 'https://futekigou-shinkawa.web.app/', color: c('bg-orange-400/30', 'border-orange-300/40') },
+  { name: '事故発生', icon: AlertTriangle, url: 'https://jiko-hassei.web.app/', color: c('bg-violet-400/30', 'border-violet-300/40') },
+  { name: 'フォトログ', icon: Image, url: 'https://manufacturing-log-shinkawa.web.app/', color: c('bg-emerald-400/30', 'border-emerald-300/40') },
+  { name: '修理・メンテ', icon: Wrench, url: 'https://shinkawa-repair-maintenance.web.app/', color: c('bg-purple-400/30', 'border-purple-300/40') },
+  { name: 'カウンター', icon: Plus, url: 'https://counter-shinkawa.web.app/', color: c('bg-green-400/30', 'border-green-300/40') },
+  { name: 'コールアプリ', icon: Bell, url: 'https://shinkawa-calling-app.web.app/', color: c('bg-lime-400/30', 'border-lime-300/40') },
+  { name: 'QR生成', icon: QrCode, url: 'https://shinkawa-product-info-qr.web.app/', color: c('bg-indigo-400/30', 'border-indigo-300/40') },
+  { name: '旧・溶接講習', icon: Zap, url: 'https://yousetu.pages.dev/', color: c('bg-slate-400/30', 'border-slate-300/40') },
+  { name: '報連相ガイド', icon: FileText, url: `${base}files/報連相.pdf`, color: c('bg-teal-400/30', 'border-teal-300/40') },
+  { name: '報連相AI', icon: Bot, url: 'https://chatgpt.com/g/g-699d2ed24998819182621edbfee0c7e0-bao-lian-xiang-ai', color: c('bg-violet-400/30', 'border-violet-300/40') },
+  { name: '報連相４択', icon: MessageCircleQuestion, url: 'https://forms.gle/dQfAJ2Az3t3J1RFE7', color: c('bg-pink-400/30', 'border-pink-300/40') },
+  { name: 'MVP投票', icon: Trophy, url: 'https://forms.gle/VAPSUnLWn4GSYnsN9', color: c('bg-yellow-300/35', 'border-yellow-200/50') },
+  { name: '社内新聞', icon: Newspaper, url: 'https://forms.gle/wCaF3fLXBigXoYw59', color: c('bg-green-400/30', 'border-green-300/40') },
+  { name: '目安箱', icon: Lightbulb, url: 'https://forms.gle/TKGYmN5LGQzvrioq8', color: c('bg-blue-400/30', 'border-blue-300/40') },
+  { name: '画像動画送信', icon: Upload, url: 'https://forms.gle/CicXQLGzpjSEauFd6', color: c('bg-fuchsia-400/30', 'border-fuchsia-300/40') },
+  { name: '振り返り動画', icon: Video, url: 'https://drive.google.com/drive/folders/1B8g3XHcwxlP9KpniCapHLdP6NJ4ncHlF?usp=drive_link', color: c('bg-red-300/30', 'border-red-200/40') },
+  { name: 'HP', icon: Globe, url: 'https://shinkawa-g.jp/', color: c('bg-cyan-300/30', 'border-cyan-200/40') },
+  { name: 'YouTube', icon: Youtube, url: 'https://www.youtube.com/channel/UC-z8G1TOqLh69NGauHlZH2A', color: c('bg-rose-500/30', 'border-rose-400/40') },
 ];
 
 const alwaysVisibleNames = [
@@ -105,8 +108,8 @@ function FolderButton({ name, apps, onOpen }: FolderButtonProps) {
           {previewApps.map((app) => {
             const Icon = app.icon;
             return (
-              <div key={app.name} className="flex items-center justify-center rounded-md bg-black/20">
-                <Icon className="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-200" strokeWidth={2} />
+              <div key={app.name} className={`flex items-center justify-center rounded-md ${app.color}`}>
+                <Icon className="h-3.5 w-3.5 md:h-4 md:w-4 text-white/90" strokeWidth={2} />
               </div>
             );
           })}
